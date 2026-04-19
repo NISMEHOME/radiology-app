@@ -28,7 +28,21 @@ def create_app():
         EmergencyRequest,
     )
 
-    # 📡 IMPORT + ENREGISTREMENT BLUEPRINTS (🔥 CRITIQUE)
+    # 🔥 CRÉATION AUTOMATIQUE DES TABLES (FIX ERREUR RENDER)
+    with app.app_context():
+        db.create_all()
+
+        # 🔐 Création admin automatique (si n'existe pas)
+        from app.models.radiology_models import User
+
+        if not User.query.filter_by(username="admin").first():
+            admin = User(username="admin", role="admin")
+            admin.set_password("1234")
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Admin créé automatiquement")
+
+    # 📡 IMPORT + ENREGISTREMENT BLUEPRINTS
     from app.routes.radiology_routes import radiology_bp
     from app.routes.auth_routes import auth_bp
 
