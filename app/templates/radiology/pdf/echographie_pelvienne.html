@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; font-size: 13px; }
+.header { text-align: center; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+REPUBLIQUE DU SENEGAL<br>
+COUD - Service Médical des Étudiants
+</div>
+
+<h3>ECHOGRAPHIE PELVIENNE</h3>
+
+<p>
+Nom : {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}<br>
+Date : {{ radio_request.completed_at.strftime('%d/%m/%Y') if radio_request.completed_at else "" }}
+</p>
+
+<strong>RESULTATS</strong><br><br>
+
+Utérus : ___________________________<br>
+Endomètre : ________________________<br>
+Myomètre : _________________________<br>
+
+Ovaires :<br>
+Droit : ____________________________<br>
+Gauche : ___________________________<br>
+
+Cul de sac de Douglas : ____________<br>
+
+<br>
+<strong>CONCLUSION :</strong><br>
+{{ radio_request.result_text }}
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-success text-white">
+            <h3>📄 Résultat radiologique</h3>
+        </div>
+        <div class="card-body">
+            <h5>👤 {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}</h5>
+            <p><strong>Numéro :</strong> {{ radio_request.patient.patient_number }}</p>
+            <p><strong>Examen :</strong> {{ radio_request.exam_type }}</p>
+
+            {% if radio_request.body_part %}
+                <p><strong>Région :</strong> {{ radio_request.body_part }}</p>
+            {% endif %}
+
+            {% if radio_request.indication %}
+                <p><strong>Indication :</strong> {{ radio_request.indication }}</p>
+            {% endif %}
+
+            <hr>
+
+            <h5>🧾 Compte rendu</h5>
+            <div class="alert alert-light border">
+                <pre style="white-space: pre-wrap;">{{ radio_request.result_text }}</pre>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <a
+                    href="{{ url_for('radiology.download_result_pdf', request_id=radio_request.id) }}"
+                    class="btn btn-primary"
+                >
+                    📥 Télécharger PDF
+                </a>
+
+                <a
+                    href="{{ url_for('radiology.verify_result', token=radio_request.result_qr) }}"
+                    class="btn btn-outline-success"
+                >
+                    📲 Vérifier QR
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

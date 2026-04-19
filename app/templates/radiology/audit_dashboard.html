@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Journal Audit Radiologie Premium{% endblock %}
+
+{% block content %}
+<style>
+    .audit-wrapper {
+        max-width: 1300px;
+        margin: auto;
+    }
+
+    .hero-card {
+        background: linear-gradient(135deg, #111827, #1f2937);
+        color: white;
+        border-radius: 24px;
+        padding: 24px 28px;
+        box-shadow: 0 12px 35px rgba(0,0,0,.12);
+        margin-bottom: 24px;
+    }
+
+    .hero-card h2 {
+        margin: 0;
+        font-weight: 800;
+        font-size: 2rem;
+    }
+
+    .hero-card p {
+        margin: 6px 0 0;
+        opacity: .85;
+    }
+
+    .kpi-card {
+        border: none;
+        border-radius: 22px;
+        color: white;
+        box-shadow: 0 10px 28px rgba(0,0,0,.08);
+        transition: all .25s ease;
+        overflow: hidden;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .kpi-body {
+        padding: 22px;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-top: 10px;
+    }
+
+    .glass-panel {
+        background: rgba(255,255,255,.85);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(0,0,0,.06);
+        margin-top: 24px;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .audit-table {
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .badge-status {
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 600;
+    }
+
+    .timeline-item {
+        border-left: 4px solid #2563eb;
+        padding-left: 16px;
+        margin-bottom: 18px;
+    }
+
+    .timeline-date {
+        font-size: .85rem;
+        color: #6b7280;
+    }
+</style>
+
+<div class="audit-wrapper">
+
+    <!-- HERO -->
+    <div class="hero-card">
+        <h2>📝 Journal d’audit radiologie</h2>
+        <p>Traçabilité avancée, supervision des flux et contrôle qualité du service</p>
+    </div>
+
+    <!-- KPI -->
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="kpi-card bg-success">
+                <div class="kpi-body">
+                    <div>✅ Résultats terminés</div>
+                    <div class="kpi-value">{{ total_completed }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card bg-warning">
+                <div class="kpi-body">
+                    <div>⏳ En attente</div>
+                    <div class="kpi-value">{{ total_pending }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card bg-info">
+                <div class="kpi-body">
+                    <div>📄 Conformes</div>
+                    <div class="kpi-value">{{ total_conforme }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card bg-danger">
+                <div class="kpi-body">
+                    <div>🚨 Urgences</div>
+                    <div class="kpi-value">{{ total_urgent }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMANDES -->
+    <div class="glass-panel">
+        <div class="section-title">📄 Dernières demandes</div>
+
+        {% if recent_requests %}
+            {% for req in recent_requests %}
+            <div class="timeline-item">
+                <div>
+                    <strong>#{{ req.id }}</strong> — {{ req.exam_type }}
+                    <span class="badge bg-primary badge-status">{{ req.status }}</span>
+                </div>
+                <div class="timeline-date">
+                    {{ req.created_at.strftime('%d/%m/%Y %H:%M') if req.created_at else '' }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-light border rounded-4">
+                Aucune demande enregistrée
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- RESULTATS -->
+    <div class="glass-panel">
+        <div class="section-title">✅ Derniers résultats</div>
+
+        {% if completed_results %}
+            <div class="table-responsive audit-table">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Examen</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in completed_results %}
+                        <tr>
+                            <td>#{{ result.id }}</td>
+                            <td>{{ result.exam_type }}</td>
+                            <td>
+                                <span class="badge bg-success badge-status">
+                                    {{ result.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {{ result.created_at.strftime('%d/%m/%Y %H:%M') if result.created_at else '' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-light border rounded-4">
+                Aucun résultat disponible
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

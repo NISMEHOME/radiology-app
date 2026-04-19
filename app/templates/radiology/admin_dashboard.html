@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin Premium{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(120deg, #f4f7fb, #eef4ff);
+    }
+
+    .hero-panel {
+        background: linear-gradient(135deg, #ffffff, #f4f8ff);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+    }
+
+    .kpi-card {
+        border-radius: 24px;
+        background: white;
+        box-shadow: 0 12px 30px rgba(0,0,0,.05);
+        transition: .3s ease;
+        height: 100%;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0,0,0,.08);
+    }
+
+    .kpi-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin: 0 auto 14px;
+        background: linear-gradient(135deg, #eef3ff, #dfe9ff);
+    }
+
+    .analytics-card,
+    .chart-panel,
+    .qr-panel,
+    .exam-panel {
+        border-radius: 24px;
+        background: white;
+        box-shadow: 0 12px 30px rgba(0,0,0,.05);
+    }
+
+    .summary-box,
+    .exam-box {
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f8fbff, #eef5ff);
+        padding: 22px;
+        transition: .2s;
+        height: 100%;
+    }
+
+    .summary-box:hover,
+    .exam-box:hover {
+        transform: scale(1.02);
+    }
+
+    .progress {
+        height: 24px;
+        border-radius: 50px;
+        background: #eef2f7;
+    }
+
+    .progress-bar {
+        border-radius: 50px;
+        font-weight: 600;
+        background: linear-gradient(90deg, #0d6efd, #0a58ca);
+    }
+
+    .progress-bar.bg-success {
+        background: linear-gradient(90deg, #198754, #157347);
+    }
+
+    .qr-card {
+        background: linear-gradient(135deg, #f9fbff, #eef4ff);
+        border-radius: 22px;
+        padding: 26px;
+        text-align: center;
+        transition: .3s ease;
+    }
+
+    .qr-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 35px rgba(0,0,0,.08);
+    }
+
+    .qr-card img {
+        border-radius: 18px;
+        padding: 10px;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    }
+
+    .download-btn {
+        border-radius: 14px;
+        font-weight: 700;
+    }
+
+    canvas {
+        background: linear-gradient(180deg, #ffffff, #f9fbff);
+        border-radius: 18px;
+        padding: 10px;
+    }
+</style>
+
+<div class="container-fluid px-0">
+
+    <!-- HERO -->
+    <div class="hero-panel mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold mb-1">📊 Dashboard Analytics COUD</h2>
+                <p class="text-muted mb-0">
+                    Vue synthétique et pilotage en temps réel du service radiologie
+                </p>
+            </div>
+
+            <a href="{{ url_for('radiology.audit_dashboard') }}"
+               class="btn btn-primary btn-lg rounded-4 px-4 shadow-sm">
+                📝 Journal d’audit
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">👥</div>
+                <h6 class="text-muted">Patients</h6>
+                <h2 class="fw-bold">{{ total_patients }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">📄</div>
+                <h6 class="text-muted">Demandes</h6>
+                <h2 class="fw-bold">{{ total_requests }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">🗓️</div>
+                <h6 class="text-muted">RDV</h6>
+                <h2 class="fw-bold">{{ total_appointments }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">🚨</div>
+                <h6 class="text-muted">Urgences</h6>
+                <h2 class="fw-bold">{{ total_emergencies }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- EXAMS KPI -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">🩻</div>
+                <h6 class="text-muted">Demandés</h6>
+                <h2 class="fw-bold">{{ total_requested_exams }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">✅</div>
+                <h6 class="text-muted">Terminés</h6>
+                <h2 class="fw-bold">{{ completed_requested_exams }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="kpi-card text-center p-4">
+                <div class="kpi-icon">⏳</div>
+                <h6 class="text-muted">En attente</h6>
+                <h2 class="fw-bold">{{ pending_requested_exams }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DAILY -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <div class="analytics-card p-4">
+                <h5 class="fw-bold">📅 RDV aujourd’hui</h5>
+                <h1 class="fw-bold">{{ appointments_today }}</h1>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="analytics-card p-4">
+                <h5 class="fw-bold">✅ Terminés aujourd’hui</h5>
+                <h1 class="fw-bold">{{ completed_today }}</h1>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <div class="analytics-card p-4">
+                <h6 class="fw-bold">📍 Taux de présence</h6>
+                <div class="progress">
+                    <div class="progress-bar"
+                         style="width: {{ attendance_rate }}%;">
+                        {{ attendance_rate }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="analytics-card p-4">
+                <h6 class="fw-bold">🏥 Charge machine</h6>
+                <div class="progress">
+                    <div class="progress-bar bg-success"
+                         style="width: {{ machine_load }}%;">
+                        {{ machine_load }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- EXAMS -->
+    <div class="exam-panel mb-4 p-4">
+        <h4 class="fw-bold mb-4">🩻 Activité par examen</h4>
+        <div class="row g-4">
+
+            {% for exam, count in exam_stats %}
+            <div class="col-md-3">
+                <div class="exam-box text-center">
+                    <h6 class="text-muted">{{ exam }}</h6>
+                    <h2 class="fw-bold">{{ count }}</h2>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-panel mb-4 p-4">
+        <h4 class="fw-bold mb-4">📉 Activité 7 jours</h4>
+        <canvas id="activityChart"></canvas>
+    </div>
+
+    <!-- QR -->
+    <div class="qr-panel p-4">
+        <h4 class="fw-bold mb-4">📲 QR Distribution</h4>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="qr-card">
+                    <h6>📡 QR Normal</h6>
+                    <img src="{{ url_for('static', filename='qr_codes/normal_qr.png') }}" width="200">
+                    <a href="{{ url_for('static', filename='qr_codes/normal_qr.png') }}" download class="btn btn-outline-primary w-100 mt-3">Télécharger</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="qr-card">
+                    <h6>🚨 QR Urgence</h6>
+                    <img src="{{ url_for('static', filename='qr_codes/emergency_qr.png') }}" width="200">
+                    <a href="{{ url_for('static', filename='qr_codes/emergency_qr.png') }}" download class="btn btn-outline-danger w-100 mt-3">Télécharger</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="qr-card">
+                    <h6>🩺 QR Recommandation</h6>
+                    <img src="{{ url_for('static', filename='qr_codes/recommendation_qr.png') }}" width="200">
+                    <a href="{{ url_for('static', filename='qr_codes/recommendation_qr.png') }}" download class="btn btn-outline-success w-100 mt-3">Télécharger</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('activityChart');
+
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | tojson }},
+                datasets: [
+                    {
+                        label: 'RDV',
+                        data: {{ appointments_series | tojson }},
+                        borderWidth: 3,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Terminés',
+                        data: {{ completed_series | tojson }},
+                        borderWidth: 3,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Urgences',
+                        data: {{ emergencies_series | tojson }},
+                        borderWidth: 3,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

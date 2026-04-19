@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Scanner cérébral - Compte rendu</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+            margin: 0;
+            background: #ffffff;
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        .page {
+            border: 1px solid #dbeafe;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.04);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #2563eb;
+            margin-bottom: 28px;
+        }
+
+        .logos {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .logos img {
+            height: 72px;
+            object-fit: contain;
+        }
+
+        .title {
+            text-align: right;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #1e3a8a;
+        }
+
+        .title p {
+            margin: 6px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f8fbff, #eef5ff);
+            border: 1px solid #dbeafe;
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 22px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1d4ed8;
+            margin-bottom: 12px;
+        }
+
+        .patient-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 30px;
+        }
+
+        .result-box {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-left: 5px solid #2563eb;
+            border-radius: 16px;
+            padding: 20px;
+            white-space: pre-wrap;
+            min-height: 180px;
+        }
+
+        .conclusion {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .signature {
+            width: 240px;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #111827;
+            margin-top: 40px;
+            padding-top: 8px;
+            font-size: 13px;
+        }
+
+        .qr-box {
+            text-align: center;
+        }
+
+        .qr-box img {
+            width: 100px;
+            height: 100px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
+            background: white;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logos">
+            <img src="{{ url_for('static', filename='logo_coud.png') }}" alt="COUD">
+            <img src="{{ url_for('static', filename='logo_radiologie.png') }}" alt="Radiologie">
+        </div>
+
+        <div class="title">
+            <h1>🧠 Scanner Cérébral</h1>
+            <p>Compte rendu radiologique neuro-imagerie</p>
+        </div>
+    </div>
+
+    <!-- IDENTITÉ -->
+    <div class="card">
+        <div class="section-title">👤 Informations patient</div>
+        <div class="patient-grid">
+            <div><strong>Nom :</strong> {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}</div>
+            <div><strong>N° dossier :</strong> {{ radio_request.patient.patient_number }}</div>
+            <div><strong>Examen :</strong> {{ radio_request.exam_type }}</div>
+            <div><strong>Date :</strong> {{ radio_request.completed_at.strftime('%d/%m/%Y %H:%M') if radio_request.completed_at else '' }}</div>
+        </div>
+    </div>
+
+    <!-- INDICATION -->
+    <div class="card">
+        <div class="section-title">📋 Indication clinique</div>
+        <div>
+            {{ radio_request.indication or "Suspicion neurologique / contrôle scanner cérébral." }}
+        </div>
+    </div>
+
+    <!-- RESULTAT -->
+    <div class="card">
+        <div class="section-title">🔍 Résultat détaillé</div>
+        <div class="result-box">
+{{ radio_request.result_text or
+"Ventricules de taille normale.\nLigne médiane respectée.\nPas d'hémorragie intra-parenchymateuse.\nPas d'effet de masse visible." }}
+        </div>
+
+        <div class="conclusion">
+            <strong>🩺 Conclusion :</strong><br>
+            Scanner cérébral sans anomalie aiguë évidente.
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="qr-box">
+            <img src="{{ qr_path }}" alt="QR Vérification">
+            <div style="margin-top:8px; font-size:12px;">QR Vérification</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-line">
+                👨🏽‍⚕️ Radiologue / Major
+            </div>
+        </div>
+    </div>
+
+    <div class="meta">
+        Service Radiologie COUD • Neuro-imagerie • Document authentifiable
+    </div>
+</div>
+</body>
+</html>

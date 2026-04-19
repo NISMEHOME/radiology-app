@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; font-size: 13px; }
+.header { text-align: center; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+REPUBLIQUE DU SENEGAL<br>
+COUD - Service Médical
+</div>
+
+<h3>ECHOGRAPHIE MAMMAIRE</h3>
+
+<p>
+Nom : {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}
+</p>
+
+<strong>RESULTATS</strong><br><br>
+
+Sein droit :<br>
+{{ radio_request.result_text }}<br><br>
+
+Sein gauche : ____________________________<br><br>
+
+<strong>CONCLUSION :</strong><br>
+{{ radio_request.result_text }}
+
+</body>
+</html>

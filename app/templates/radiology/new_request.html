@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Nouveau RDV Radiologie{% endblock %}
+
+{% block content %}
+<style>
+    .request-card {
+        border: none;
+        border-radius: 28px;
+        box-shadow: 0 18px 40px rgba(13, 110, 253, 0.08);
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .request-header {
+        background: linear-gradient(135deg, #0d6efd, #3d8bfd);
+        color: white;
+        padding: 30px;
+        position: relative;
+    }
+
+    .request-header::after {
+        content: "";
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 140px;
+        height: 140px;
+        background: rgba(255,255,255,0.10);
+        border-radius: 50%;
+    }
+
+    .section-box {
+        background: #f8fbff;
+        border: 1px solid #e9f2ff;
+        border-radius: 20px;
+        padding: 22px;
+        margin-bottom: 24px;
+        transition: all .2s ease;
+    }
+
+    .section-box:hover {
+        box-shadow: 0 10px 24px rgba(13,110,253,0.05);
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 14px;
+        padding: 14px 16px;
+        border: 1px solid #dbe7ff;
+        box-shadow: none;
+        transition: all .2s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+    }
+
+    .upload-box {
+        border: 2px dashed #cfe2ff;
+        border-radius: 16px;
+        padding: 16px;
+        background: #fcfdff;
+        transition: all .2s ease;
+    }
+
+    .upload-box:hover {
+        border-color: #0d6efd;
+        background: #f8fbff;
+    }
+
+    .submit-btn {
+        border-radius: 16px;
+        padding: 16px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        box-shadow: 0 10px 24px rgba(13, 110, 253, 0.18);
+        transition: all .2s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .muted-help {
+        font-size: .9rem;
+        color: #6c757d;
+    }
+
+    .step-pill {
+        display: inline-block;
+        background: #eef4ff;
+        color: #0d6efd;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: .85rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+        <div class="card request-card">
+
+            <!-- HEADER -->
+            <div class="request-header">
+                <h2 class="mb-1 fw-bold">📡 Nouveau rendez-vous Radiologie</h2>
+                <p class="mb-0 opacity-75">
+                    Renseignez les informations du patient et joignez les documents médicaux requis.
+                </p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+
+                    <!-- 👤 PATIENT -->
+                    <div class="section-box">
+                        <div class="step-pill">Étape 1 • Patient</div>
+                        <h5 class="fw-bold mb-4">👤 Informations patient</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Type patient</label>
+                            <select name="patient_type" class="form-select" required>
+                                <option value="student" {% if appointment and appointment.patient.patient_type == 'student' %}selected{% endif %}>🎓 Étudiant</option>
+                                <option value="staff" {% if appointment and appointment.patient.patient_type == 'staff' %}selected{% endif %}>👨🏽‍💼 Personnel</option>
+                                <option value="external" {% if appointment and appointment.patient.patient_type == 'external' %}selected{% endif %}>🧍 Externe</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Prénom</label>
+                                <input type="text" name="first_name" class="form-control"
+                                       value="{{ appointment.patient.first_name if appointment else '' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Nom</label>
+                                <input type="text" name="last_name" class="form-control"
+                                       value="{{ appointment.patient.last_name if appointment else '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Date de naissance</label>
+                                <input type="date" name="birth_date" class="form-control"
+                                       value="{{ appointment.patient.birth_date if appointment else '' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Téléphone</label>
+                                <input type="text" name="phone" class="form-control"
+                                       value="{{ appointment.patient.phone if appointment else '' }}" required>
+                            </div>
+                        </div>
+
+                        <input type="text" name="matricule" class="form-control"
+                               value="{{ appointment.patient.matricule if appointment else '' }}"
+                               placeholder="Matricule">
+                    </div>
+
+                    <!-- 🩻 EXAMEN -->
+                    <div class="section-box">
+                        <div class="step-pill">Étape 2 • Examen</div>
+                        <h5 class="fw-bold mb-4">🩻 Informations examen</h5>
+
+                        <div class="mb-3">
+                            <label>Type d'examen</label>
+                            <select name="exam_type" class="form-select" required>
+                                {% for exam in radiology_types %}
+                                    <option value="{{ exam }}">{{ exam }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Zone</label>
+                            <input type="text" name="body_part" class="form-control">
+                        </div>
+
+                        <div class="mb-0">
+                            <label>Indication</label>
+                            <textarea name="indication" class="form-control"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 📎 DOCUMENTS -->
+                    <div class="section-box">
+                        <div class="step-pill">Étape 3 • Documents</div>
+                        <h5 class="fw-bold mb-4">📎 Fichiers</h5>
+
+                        <input type="file" name="bulletin_file" class="form-control mb-3" required>
+                        <input type="file" name="support_file_1" class="form-control mb-3">
+                        <input type="file" name="support_file_2" class="form-control">
+                    </div>
+
+                    <!-- SUBMIT -->
+                    <button type="submit" class="btn btn-primary w-100 submit-btn">
+                        ✅ Valider et obtenir le RDV
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

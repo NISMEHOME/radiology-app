@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Major{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background: linear-gradient(120deg, #f4f7fb, #eef3ff);
+    }
+
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .card-modern {
+        border: none;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(13,110,253,0.08);
+        transition: 0.3s ease;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(13,110,253,0.12);
+    }
+
+    .section-title {
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+
+    .badge-modern {
+        border-radius: 12px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
+    .table-modern {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .table-modern tbody tr {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        transition: 0.2s;
+    }
+
+    .table-modern tbody tr:hover {
+        transform: scale(1.01);
+    }
+
+    .btn-action {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 8px 12px;
+        transition: 0.2s;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+    }
+
+    .empty-state {
+        padding: 30px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .list-item {
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: #f8f9ff;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .list-item:hover {
+        background: #eef3ff;
+    }
+</style>
+
+<div class="container-fluid dashboard-container">
+
+```
+<!-- 📁 DOSSIERS -->
+<div class="card card-modern mb-4">
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="section-title">📁 Dossiers à traiter</div>
+            <span class="badge bg-primary badge-modern">
+                {{ folders|length }} dossier(s)
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-modern align-middle">
+                <thead class="text-muted small">
+                    <tr>
+                        <th>Dossier</th>
+                        <th>Patient</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                        <th width="200">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for folder in folders %}
+                    <tr>
+                        <td><strong>{{ folder.folder_number }}</strong></td>
+
+                        <td>
+                            {{ folder.patient.first_name }} {{ folder.patient.last_name }}
+                        </td>
+
+                        <td>
+                            <span class="badge bg-warning text-dark badge-modern">
+                                🕒 En attente
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ folder.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('radiology.major_folder_detail', folder_id=folder.id) }}"
+                               class="btn btn-success btn-sm w-100 btn-action">
+                                ✏️ Saisir
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            📂 Aucun dossier en attente
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- 🚨 URGENCES -->
+<div class="card card-modern mb-4">
+    <div class="card-body">
+        <div class="section-title mb-3">🚨 Urgences Radiologie</div>
+
+        {% if emergencies %}
+            {% for emergency in emergencies %}
+            <div class="list-item">
+                <div>Patient #{{ emergency.patient_id }}</div>
+                <span class="badge bg-danger badge-modern">Urgent</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">Aucune urgence</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 🩺 RECOMMANDATIONS -->
+<div class="card card-modern">
+    <div class="card-body">
+        <div class="section-title mb-3">🩺 Recommandations médicales</div>
+
+        {% if recommendations %}
+            {% for rec in recommendations %}
+            <div class="list-item">
+                <div>Patient #{{ rec.patient_id }}</div>
+                <span class="badge bg-info badge-modern">Info</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">Aucune recommandation</div>
+        {% endif %}
+    </div>
+</div>
+```
+
+</div>
+
+{% endblock %}

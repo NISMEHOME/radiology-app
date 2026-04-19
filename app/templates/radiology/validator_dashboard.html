@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Valideur{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(120deg, #f4f7fb, #eef3fb);
+    }
+
+    .validator-header {
+        background: linear-gradient(135deg, #ffffff, #f8fbff);
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(13, 110, 253, 0.08);
+        border: 1px solid rgba(13, 110, 253, 0.08);
+    }
+
+    .stat-card {
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        transition: 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .premium-table-card {
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.06);
+    }
+
+    .premium-table thead th {
+        background: #f1f5f9;
+        font-size: 13px;
+        font-weight: 700;
+        color: #475569;
+        border: none;
+        padding: 18px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .premium-table tbody tr {
+        transition: 0.2s ease;
+    }
+
+    .premium-table tbody tr:hover {
+        background: #f8fbff;
+        transform: scale(1.002);
+    }
+
+    .premium-table td {
+        vertical-align: middle;
+        padding: 18px;
+        border-color: #eef2f7;
+    }
+
+    .status-badge {
+        font-size: 12px;
+        padding: 7px 12px;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    .patient-badge {
+        background: #eef4ff;
+        color: #0d6efd;
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-weight: 700;
+    }
+
+    .patient-meta {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .action-box {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+    }
+
+    .action-box:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 8px 20px rgba(13,110,253,0.08);
+    }
+
+    .modern-btn {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 10px;
+        transition: 0.2s;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .file-link {
+        display: inline-block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: #0d6efd;
+        text-decoration: none;
+    }
+
+    .file-link:hover {
+        text-decoration: underline;
+    }
+
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card validator-header border-0">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-2">👨🏽‍⚕️ Validation des dossiers radiologie</h2>
+                    <p class="text-muted mb-0">
+                        Analyse rapide, validation sécurisée et suivi des examens.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="stat-card text-center p-4">
+                <h6 class="text-muted">Dossiers à traiter</h6>
+                <h1 class="fw-bold text-primary">{{ requests|length }}</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="premium-table-card">
+        <div class="table-responsive">
+            <table class="table premium-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Numéro</th>
+                        <th>Statut</th>
+                        <th>Fichiers</th>
+                        <th width="350">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for req in requests %}
+                <tr>
+
+                    <!-- DATE -->
+                    <td>
+                        <div class="fw-semibold">
+                            {{ req.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                        <small class="text-muted">
+                            {{ req.created_at.strftime('%H:%M') }}
+                        </small>
+                    </td>
+
+                    <!-- PATIENT -->
+                    <td>
+                        <div class="fw-bold">
+                            {{ req.patient.full_name if req.patient else "Patient inconnu" }}
+                        </div>
+
+                        <div class="patient-meta">
+                            🧪 {{ req.exam_type }}
+                        </div>
+
+                        <div class="patient-meta">
+                            📝 {{ req.indication or "Non renseigné" }}
+                        </div>
+                    </td>
+
+                    <!-- NUMERO -->
+                    <td>
+                        <span class="patient-badge">
+                            {{ req.patient.patient_number if req.patient else "-" }}
+                        </span>
+                    </td>
+
+                    <!-- STATUT -->
+                    <td>
+                        {% if req.status == "conforme" %}
+                            <span class="badge bg-success status-badge">✔ Conforme</span>
+                        {% elif req.status == "a_corriger" %}
+                            <span class="badge bg-warning text-dark status-badge">⚠ À corriger</span>
+                        {% elif req.status == "annule" %}
+                            <span class="badge bg-danger status-badge">✖ Annulé</span>
+                        {% else %}
+                            <span class="badge bg-secondary status-badge">⏳ En attente</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- FICHIERS -->
+                    <td>
+                        {% if req.bulletin_file %}
+                            <a class="file-link"
+                               href="{{ url_for('radiology.download_result_file', filename=req.bulletin_file) }}"
+                               target="_blank">
+                                📄 Bulletin
+                            </a><br>
+                        {% else %}
+                            <span class="text-muted small">Aucun fichier</span><br>
+                        {% endif %}
+
+                        {% if req.support_file_1 %}
+                            <a class="file-link"
+                               href="{{ url_for('radiology.download_result_file', filename=req.support_file_1) }}"
+                               target="_blank">
+                                📎 Support 1
+                            </a><br>
+                        {% endif %}
+
+                        {% if req.support_file_2 %}
+                            <a class="file-link"
+                               href="{{ url_for('radiology.download_result_file', filename=req.support_file_2) }}"
+                               target="_blank">
+                                📎 Support 2
+                            </a>
+                        {% endif %}
+                    </td>
+
+                    <!-- ACTION -->
+                    <td>
+                        <div class="action-box">
+                            <form method="POST"
+                                  action="{{ url_for('radiology.update_request_status', request_id=req.id) }}">
+
+                                <div class="mb-2">
+                                    <select name="status" class="form-select">
+                                        <option value="conforme" {% if req.status == "conforme" %}selected{% endif %}>🟢 Conforme</option>
+                                        <option value="a_corriger" {% if req.status == "a_corriger" %}selected{% endif %}>🟡 À corriger</option>
+                                        <option value="annule" {% if req.status == "annule" %}selected{% endif %}>🔴 Annulé</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-2">
+                                    <textarea name="comment"
+                                              class="form-control"
+                                              rows="2"
+                                              placeholder="Ajouter un commentaire...">{{ req.validator_comment or '' }}</textarea>
+                                </div>
+
+                                <button type="submit"
+                                        class="btn btn-primary modern-btn w-100">
+                                    💾 Mettre à jour
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="fs-1 mb-3">📂</div>
+                        <h5 class="fw-bold text-muted">Aucun dossier à valider</h5>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

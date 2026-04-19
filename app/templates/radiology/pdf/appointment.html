@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        color: #333;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        border-bottom: 3px solid #198754;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+
+    .logo {
+        height: 60px;
+        margin-right: 20px;
+    }
+
+    .title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #198754;
+    }
+
+    .box {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .qr {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .footer {
+        margin-top: 40px;
+        font-size: 12px;
+        text-align: center;
+        color: #888;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <!-- ✅ TON LOGO (correct car dans static direct) -->
+    <img src="{{ url_for('static', filename='logo_radiologie.png') }}" class="logo">
+
+    <div>
+        <div class="title">SERVICE RADIOLOGIE - COUD</div>
+        <div>Centre Hospitalier Universitaire</div>
+    </div>
+</div>
+
+<!-- INFOS -->
+<div class="box">
+    <p><span class="label">Patient :</span>
+        {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}
+    </p>
+
+    <p><span class="label">Numéro :</span>
+        {{ appointment.patient.patient_number }}
+    </p>
+
+    <p><span class="label">Date du rendez-vous :</span>
+        {{ appointment.appointment_datetime.strftime('%d/%m/%Y %H:%M') }}
+    </p>
+</div>
+
+<!-- QR CODE -->
+<div class="qr">
+    <p><strong>Scanner ce code à votre arrivée</strong></p>
+    <img src="{{ qr_path }}" width="140">
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    Merci de vous présenter 15 minutes avant votre rendez-vous avec ce document.
+</div>
+
+</body>
+</html>

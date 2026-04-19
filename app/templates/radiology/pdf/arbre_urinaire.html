@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; font-size: 13px; }
+</style>
+</head>
+
+<body>
+
+<h3>ECHOGRAPHIE ARBRE URINAIRE</h3>
+
+<p>Patient : {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}</p>
+
+Rein droit : ______________________<br>
+Rein gauche : _____________________<br>
+Vessie : __________________________<br>
+
+<br>
+<strong>CONCLUSION :</strong><br>
+{{ radio_request.result_text }}
+
+</body>
+</html>

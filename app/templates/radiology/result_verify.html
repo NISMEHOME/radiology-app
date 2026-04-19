@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-success rounded-4 overflow-hidden">
+        <div class="card-header bg-success text-white py-3">
+            <h3 class="mb-0">✅ Vérification authentique du compte rendu</h3>
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- ✅ message authenticité -->
+            <div class="alert alert-success border-0 shadow-sm rounded-4">
+                ✔ Ce compte rendu est authentique et provient du
+                <strong>Service Radiologie COUD</strong>
+            </div>
+
+            <!-- 👤 identité patient -->
+            <h5 class="fw-bold mb-3">
+                👤 Patient :
+                {{ exam.folder.patient.first_name }}
+                {{ exam.folder.patient.last_name }}
+            </h5>
+
+            <p class="mb-2">
+                <strong>📁 Dossier :</strong>
+                {{ exam.folder.folder_number }}
+            </p>
+
+            <p class="mb-2">
+                <strong>🆔 Numéro patient :</strong>
+                {{ exam.folder.patient.patient_number }}
+            </p>
+
+            <p class="mb-3">
+                <strong>🩻 Examen :</strong>
+                {{ exam.exam_type }}
+            </p>
+
+            <hr>
+
+            <!-- 🧾 résultat -->
+            <h5 class="fw-bold mb-3">🧾 Résultat</h5>
+            <div class="border rounded-4 p-4 bg-light shadow-sm">
+                <pre style="white-space: pre-wrap; margin: 0;">{{ exam.result_text }}</pre>
+            </div>
+
+            <!-- 🕒 date -->
+            {% if exam.completed_at %}
+            <p class="mt-4 text-muted">
+                🕒 Généré le :
+                {{ exam.completed_at.strftime('%d/%m/%Y à %H:%M') }}
+            </p>
+            {% endif %}
+
+            <!-- 🔒 authenticité -->
+            <div class="mt-4 small text-muted">
+                🔐 Vérification sécurisée par QR code • COUD Radiologie
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

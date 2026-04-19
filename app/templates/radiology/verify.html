@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Vérification RDV{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card page-card">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">✅ Fiche patient vérifiée</h2>
+                        <p class="text-muted mb-0">
+                            Informations de rendez-vous radiologie
+                        </p>
+                    </div>
+                    <div class="fs-1">📡</div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-light h-100">
+                            <h6 class="text-muted mb-2">👤 Patient</h6>
+                            <h4 class="fw-bold mb-0">
+                                {{ appointment.patient.first_name }}
+                                {{ appointment.patient.last_name }}
+                            </h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-light h-100">
+                            <h6 class="text-muted mb-2">🆔 Numéro patient</h6>
+                            <h4 class="fw-bold mb-0">
+                                {{ appointment.patient.patient_number }}
+                            </h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-light h-100">
+                            <h6 class="text-muted mb-2">📅 Rendez-vous</h6>
+                            <h5 class="fw-semibold mb-0">
+                                {{ appointment.appointment_datetime }}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="p-4 rounded-4 text-center border h-100">
+                            <h6 class="text-muted">📍 Présence</h6>
+                            {% if appointment.is_checked_in %}
+                                <span class="badge bg-success fs-6 px-3 py-2">Oui</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark fs-6 px-3 py-2">Non</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="p-4 rounded-4 text-center border h-100">
+                            <h6 class="text-muted">🏁 Terminé</h6>
+                            {% if appointment.is_completed %}
+                                <span class="badge bg-primary fs-6 px-3 py-2">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6 px-3 py-2">Non</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('radiology.secretary_dashboard') }}"
+                       class="btn btn-primary btn-lg rounded-4 px-4">
+                        👩🏽‍💼 Retour dashboard secrétaire
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

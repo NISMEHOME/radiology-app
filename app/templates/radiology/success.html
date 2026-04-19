@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}RDV confirmé{% endblock %}
+
+{% block content %}
+<style>
+    .success-hero {
+        background: linear-gradient(135deg, #198754, #20c997);
+        color: white;
+        border-radius: 24px 24px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-hero::after {
+        content: "";
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 140px;
+        height: 140px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 50%;
+    }
+
+    .info-card {
+        border-radius: 20px;
+        background: #f8fafc;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.04);
+        transition: all .2s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .cta-btn {
+        border-radius: 18px;
+        font-weight: 700;
+        transition: all .2s ease;
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .appointment-highlight {
+        background: linear-gradient(135deg, #eefaf4, #f8fffc);
+        border: 1px solid #d1f2e0;
+        border-radius: 18px;
+    }
+</style>
+
+<div class="row justify-content-center align-items-center" style="min-height: 78vh;">
+    <div class="col-md-10 col-lg-8">
+        <div class="card page-card border-0 shadow-lg overflow-hidden">
+
+            <!-- 🎉 Header -->
+            <div class="success-hero text-center p-5">
+                <div class="mb-3" style="font-size: 64px;">✅</div>
+                <h1 class="fw-bold mb-2">Rendez-vous confirmé</h1>
+                <p class="mb-0 opacity-75 fs-5">
+                    Votre passage en radiologie a été programmé automatiquement
+                </p>
+            </div>
+
+            <!-- 📄 Corps -->
+            <div class="card-body p-5">
+
+                <div class="alert alert-info rounded-4 border-0 shadow-sm mb-4">
+                    📅 Merci de vous présenter
+                    <strong>15 minutes avant l’heure prévue</strong>
+                    avec votre fiche PDF et vos documents médicaux.
+                </div>
+
+                <!-- 👤 Infos -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-4 info-card h-100">
+                            <small class="text-muted d-block mb-2">👤 Patient</small>
+                            <h5 class="fw-bold mb-0">
+                                {{ appointment.patient.first_name }}
+                                {{ appointment.patient.last_name }}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-4 info-card h-100">
+                            <small class="text-muted d-block mb-2">🆔 Numéro</small>
+                            <h5 class="fw-bold mb-0 text-primary">
+                                {{ appointment.patient.patient_number }}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-4 appointment-highlight h-100">
+                            <small class="text-muted d-block mb-2">🗓️ Rendez-vous</small>
+                            <h6 class="fw-bold mb-1">
+                                {{ appointment.appointment_datetime.strftime('%d/%m/%Y') }}
+                            </h6>
+                            <small class="text-success fw-semibold fs-6">
+                                ⏰ {{ appointment.appointment_datetime.strftime('%H:%M') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📱 Info -->
+                <div class="alert alert-success rounded-4 border-0 shadow-sm">
+                    📲 Votre fiche PDF contient un
+                    <strong>QR code de vérification</strong>
+                    à présenter au secrétariat lors de votre arrivée.
+                </div>
+
+                <!-- 🚀 Actions -->
+                <div class="d-grid gap-3 mt-5">
+                    <!-- ✅ FIX ICI -->
+                    <a href="{{ url_for('radiology.download_appointment_pdf', filename=pdf_path) }}"
+                       class="btn btn-primary btn-lg">
+                        📄 Télécharger la fiche PDF
+                    </a>
+
+                    <a href="{{ url_for('radiology.new_request') }}"
+                       class="btn btn-outline-secondary btn-lg cta-btn py-3">
+                        ➕ Faire une nouvelle demande
+                    </a>
+                </div>
+
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        📍 Gardez cette fiche PDF, elle sera demandée au secrétariat et lors du scan QR.
+                    </small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

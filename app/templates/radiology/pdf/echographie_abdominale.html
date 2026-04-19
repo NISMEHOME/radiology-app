@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+    font-family: Arial;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.header {
+    text-align: center;
+    font-weight: bold;
+}
+
+.section {
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    REPUBLIQUE DU SENEGAL<br>
+    Un peuple - Un but - Une foi<br><br>
+
+    MINISTERE DE L’ENSEIGNEMENT SUPERIEUR<br>
+    COUD - Service Médical des Étudiants
+</div>
+
+<br>
+
+<h3>ECHOGRAPHIE ABDOMINALE</h3>
+
+<p>
+Nom : {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}<br>
+Age : {{ radio_request.patient.age if radio_request.patient.age else "" }}<br>
+Date : {{ radio_request.completed_at.strftime('%d/%m/%Y') if radio_request.completed_at else "" }}
+</p>
+
+<div class="section">
+<strong>RESULTATS</strong><br><br>
+
+FOIE : {{ radio_request.result_text }}<br>
+PANCREAS : _______________________________<br>
+RATE : _______________________________<br>
+REINS : _______________________________<br>
+
+</div>
+
+<br><br>
+
+<strong>CONCLUSION :</strong><br>
+{{ radio_request.result_text }}
+
+</body>
+</html>

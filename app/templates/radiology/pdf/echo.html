@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Échographie</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            margin: 0;
+            background: #ffffff;
+            color: #1f2937;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .page {
+            border: 1px solid #bbf7d0;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.04);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #16a34a;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .logos {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .logos img {
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .title {
+            text-align: right;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #166534;
+        }
+
+        .title p {
+            margin: 6px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #bbf7d0;
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #166534;
+            margin-bottom: 10px;
+        }
+
+        .result-box {
+            background: #ffffff;
+            border: 1px solid #d1fae5;
+            border-left: 5px solid #16a34a;
+            border-radius: 16px;
+            padding: 18px;
+            white-space: pre-wrap;
+            min-height: 150px;
+        }
+
+        .conclusion {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .footer {
+            margin-top: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .qr-box {
+            text-align: center;
+        }
+
+        .qr-box img {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
+            padding: 8px;
+            background: white;
+        }
+
+        .signature {
+            width: 240px;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #111827;
+            margin-top: 40px;
+            padding-top: 8px;
+            font-size: 13px;
+        }
+
+        .meta {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logos">
+            <img src="{{ url_for('static', filename='logo_coud.png') }}" alt="COUD">
+            <img src="{{ url_for('static', filename='logo_radiologie.png') }}" alt="Radiologie">
+        </div>
+
+        <div class="title">
+            <h1>📡 Échographie</h1>
+            <p>Compte rendu échographique premium</p>
+        </div>
+    </div>
+
+    <!-- PATIENT -->
+    <div class="card">
+        <div class="section-title">👤 Informations patient</div>
+        <p>
+            <strong>Patient :</strong>
+            {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}
+        </p>
+        <p>
+            <strong>Numéro dossier :</strong>
+            {{ radio_request.patient.patient_number }}
+        </p>
+        <p>
+            <strong>Examen :</strong>
+            {{ radio_request.exam_type }}
+        </p>
+    </div>
+
+    <!-- INDICATION -->
+    <div class="card">
+        <div class="section-title">📋 Indication clinique</div>
+        <p>
+            {{ radio_request.indication or "Douleur abdominale / contrôle échographique." }}
+        </p>
+    </div>
+
+    <!-- RESULTAT -->
+    <div class="card">
+        <div class="section-title">🔍 Résultat</div>
+
+        <div class="result-box">
+{{ radio_request.result_text or "Foie homogène. Reins de taille normale. Pas d’épanchement intra-abdominal visible." }}
+        </div>
+
+        <div class="conclusion">
+            <strong>🩺 Conclusion :</strong><br>
+            Échographie sans anomalie majeure visualisée.
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="qr-box">
+            <img src="{{ qr_path }}" alt="QR Vérification">
+            <div style="margin-top:8px; font-size:12px;">QR Vérification</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-line">
+                👨🏽‍⚕️ Radiologue / Major
+            </div>
+        </div>
+    </div>
+
+    <div class="meta">
+        Service Radiologie COUD • Échographie • Document authentifiable
+    </div>
+
+</div>
+</body>
+</html>

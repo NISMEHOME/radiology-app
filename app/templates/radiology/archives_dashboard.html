@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}🗃️ Archives Radiologie{% endblock %}
+
+{% block content %}
+<style>
+    .archive-header {
+        background: linear-gradient(135deg, #111827, #1f2937);
+        color: white;
+        border-radius: 26px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 16px 40px rgba(0,0,0,.12);
+    }
+
+    .search-panel {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+
+    .archive-card {
+        border: none;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 28px rgba(0,0,0,.06);
+        transition: all .25s ease;
+        background: white;
+    }
+
+    .archive-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 35px rgba(0,0,0,.08);
+    }
+
+    .archive-top {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: white;
+        padding: 18px 22px;
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .meta-box {
+        background: #f8fbff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 14px;
+    }
+
+    .workflow-box {
+        background: #fafafa;
+        border-radius: 18px;
+        padding: 16px;
+        max-height: 280px;
+        overflow-y: auto;
+    }
+
+    .workflow-item {
+        border-left: 4px solid #0d6efd;
+        padding: 12px 14px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,.04);
+    }
+
+    .badge-soft {
+        background: #eef4ff;
+        color: #0d6efd;
+        border-radius: 50px;
+        padding: 6px 12px;
+        font-size: .85rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <!-- HEADER -->
+    <div class="archive-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold mb-1">🗃️ Archives des dossiers remis</h2>
+                <p class="mb-0 opacity-75">
+                    Historique complet des dossiers archivés, résultats PDF et workflow
+                </p>
+            </div>
+            <span class="badge-soft">
+                📦 {{ archive_data|length }} dossier(s)
+            </span>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-panel">
+        <form method="GET">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">📁 Numéro dossier</label>
+                    <input type="text"
+                           name="folder_number"
+                           value="{{ request.args.get('folder_number', '') }}"
+                           class="form-control rounded-4"
+                           placeholder="DOSS-2026-0001">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">👤 Nom patient</label>
+                    <input type="text"
+                           name="patient_name"
+                           value="{{ request.args.get('patient_name', '') }}"
+                           class="form-control rounded-4"
+                           placeholder="Nom ou prénom">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">📅 Date remise</label>
+                    <input type="date"
+                           name="archive_date"
+                           value="{{ request.args.get('archive_date', '') }}"
+                           class="form-control rounded-4">
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-dark rounded-4 px-4">
+                        🔍 Rechercher
+                    </button>
+                    <a href="{{ url_for('radiology.archives_dashboard') }}"
+                       class="btn btn-outline-secondary rounded-4 px-4">
+                        ♻️ Réinitialiser
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if archive_data %}
+        {% for item in archive_data %}
+        <div class="archive-card mb-4">
+            <div class="archive-top">
+                📁 Dossier {{ item.folder.folder_number }}
+            </div>
+
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3">
+                    👤 {{ item.folder.patient.first_name }}
+                    {{ item.folder.patient.last_name }}
+                </h4>
+
+                <div class="meta-grid">
+                    <div class="meta-box">
+                        <strong>📅 Date remise</strong><br>
+                        {{ item.folder.delivered_at.strftime("%d/%m/%Y %H:%M") if item.folder.delivered_at else "-" }}
+                    </div>
+
+                    <div class="meta-box">
+                        <strong>👩‍💼 Remis par</strong><br>
+                        {{ item.folder.delivered_by or "-" }}
+                    </div>
+
+                    <div class="meta-box">
+                        <strong>🧪 Examens</strong><br>
+                        {{ item.completed_count }}/{{ item.exam_count }}
+                    </div>
+
+                    <div class="meta-box">
+                        <strong>📄 PDFs remis</strong><br>
+                        {{ item.pdf_count }}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-3">📝 Historique workflow</h5>
+                <div class="workflow-box">
+                    {% for log in item.logs %}
+                    <div class="workflow-item">
+                        <strong>
+                            {{ log.created_at.strftime("%d/%m/%Y %H:%M") }}
+                        </strong>
+                        <br>
+                        {{ log.action }}
+                        <br>
+                        <small class="text-muted">
+                            {{ log.actor_role }} | {{ log.actor_name }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info rounded-4 shadow-sm">
+            📭 Aucun dossier archivé pour le moment.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

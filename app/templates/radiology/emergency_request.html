@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Urgence Radiologie{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-lg-7 col-xl-6">
+        <div class="card page-card border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="mb-3" style="font-size: 3rem;">🚨</div>
+                    <h2 class="fw-bold text-danger mb-2">
+                        Demande urgence radiologie
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Transmission directe au dashboard du Major
+                    </p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            🆔 ID patient
+                        </label>
+                        <input
+                            type="number"
+                            name="patient_id"
+                            class="form-control form-control-lg rounded-4 shadow-sm"
+                            placeholder="Ex: 125"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            📄 Bulletin urgence
+                        </label>
+                        <input
+                            type="file"
+                            name="emergency_bulletin"
+                            class="form-control form-control-lg rounded-4 shadow-sm"
+                            required
+                        >
+                        <div class="form-text">
+                            PDF, image ou document médical d'urgence
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button
+                            type="submit"
+                            class="btn btn-danger btn-lg rounded-4 shadow-sm py-3 fw-semibold"
+                        >
+                            🚀 Envoyer au Major
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

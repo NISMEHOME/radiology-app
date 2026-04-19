@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h3>🩻 Saisie du compte rendu radiologique</h3>
+        </div>
+        <div class="card-body">
+            <h5>👤 Patient : {{ radio_request.patient.first_name }} {{ radio_request.patient.last_name }}</h5>
+            <p><strong>Numéro :</strong> {{ radio_request.patient.patient_number }}</p>
+            <p><strong>Examen :</strong> {{ radio_request.exam_type }}</p>
+
+            {% if radio_request.body_part %}
+                <p><strong>Région :</strong> {{ radio_request.body_part }}</p>
+            {% endif %}
+
+            {% if radio_request.indication %}
+                <p><strong>Indication :</strong> {{ radio_request.indication }}</p>
+            {% endif %}
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">🧾 Compte rendu</label>
+                    <textarea
+                        name="result_text"
+                        class="form-control"
+                        rows="10"
+                        placeholder="Saisir le compte rendu détaillé..."
+                    >{{ radio_request.result_text or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    ✅ Générer le PDF résultat
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

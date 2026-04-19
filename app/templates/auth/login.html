@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion sécurisée{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(120deg, #f4f7fb, #e9f1ff);
+    }
+
+    .login-wrapper {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        border-radius: 28px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 25px 60px rgba(13, 110, 253, 0.15);
+        transition: 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 35px 70px rgba(13, 110, 253, 0.2);
+    }
+
+    /* LEFT SIDE */
+    .login-side {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: white;
+        padding: 50px 35px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+
+    .login-side::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+    }
+
+    .login-side h2 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        z-index: 1;
+    }
+
+    .login-side p {
+        margin-top: 15px;
+        opacity: 0.95;
+        line-height: 1.6;
+        z-index: 1;
+    }
+
+    .feature-list {
+        margin-top: 30px;
+        font-size: .95rem;
+        z-index: 1;
+    }
+
+    .feature-list div {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* RIGHT SIDE */
+    .login-form {
+        padding: 50px 45px;
+    }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 1.6rem;
+    }
+
+    .form-control {
+        border-radius: 14px;
+        padding: 14px;
+        border: 1px solid #e3eaf3;
+        transition: 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    }
+
+    .input-group-text {
+        border-radius: 14px 0 0 14px;
+        background: #f1f5ff;
+        border: 1px solid #e3eaf3;
+    }
+
+    .btn-login {
+        border-radius: 14px;
+        padding: 14px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        border: none;
+        box-shadow: 0 10px 25px rgba(13, 110, 253, 0.3);
+        transition: 0.2s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(13, 110, 253, 0.35);
+    }
+
+    .security-note {
+        text-align: center;
+        margin-top: 18px;
+        font-size: .85rem;
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .login-side {
+            display: none;
+        }
+
+        .login-form {
+            padding: 35px 25px;
+        }
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="col-lg-8 col-md-10">
+        <div class="card login-card">
+            <div class="row g-0">
+
+                <!-- LEFT -->
+                <div class="col-md-5 login-side">
+                    <h2>📡 Radiologie COUD</h2>
+                    <p>
+                        Plateforme intelligente de gestion radiologique avec
+                        sécurité avancée et automatisation des résultats.
+                    </p>
+
+                    <div class="feature-list">
+                        <div>✅ Validation documentaire</div>
+                        <div>🚨 Gestion urgences</div>
+                        <div>📄 QR + PDF automatique</div>
+                        <div>📊 Suivi temps réel</div>
+                    </div>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="col-md-7">
+                    <div class="login-form">
+                        <div class="mb-4">
+                            <div class="login-title">🔐 Connexion sécurisée</div>
+                            <p class="text-muted mb-0">
+                                Accédez à votre espace professionnel
+                            </p>
+                        </div>
+
+                        <form method="POST">
+
+                            <!-- USERNAME -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Nom d'utilisateur
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">👤</span>
+                                    <input type="text"
+                                           name="username"
+                                           class="form-control"
+                                           placeholder="admin"
+                                           required>
+                                </div>
+                            </div>
+
+                            <!-- PASSWORD -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    Mot de passe
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">🔑</span>
+                                    <input type="password"
+                                           name="password"
+                                           class="form-control"
+                                           placeholder="••••••••"
+                                           required>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-login w-100">
+                                Se connecter
+                            </button>
+                        </form>
+
+                        <div class="security-note">
+                            🔒 Accès réservé aux agents autorisés
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
