@@ -9,12 +9,18 @@ from flask import (
     session,
     send_from_directory,
 )
+
 from werkzeug.utils import secure_filename
 from datetime import datetime, date, timedelta
 from sqlalchemy import func, or_
+
 import os
 import uuid
+
+# 🗄️ DB
 from app import db
+
+# 📦 MODELS
 from app.models.radiology_models import (
     Patient,
     RadiologyRequest,
@@ -26,16 +32,31 @@ from app.models.radiology_models import (
     WorkflowLog,
     generate_folder_number,
 )
+
+# ⚙️ SERVICES
 from app.services.appointment_service import (
     generate_patient_number,
     get_next_available_appointment,
 )
+
 from app.services.qr_service import generate_qr_code
+
 from app.services.pdf_service import (
     generate_appointment_pdf,
     generate_radiology_result_pdf,
 )
+
+# 🔐 AUTH
 from app.routes.auth_routes import role_required
+
+# =========================================================
+# 🌍 UTILITAIRE BASE URL (PRO)
+# =========================================================
+def get_base_url():
+    return current_app.config.get(
+        "BASE_URL",
+        "http://127.0.0.1:5000"
+    ).rstrip("/")
 
 
 # =========================================================
@@ -46,7 +67,6 @@ radiology_bp = Blueprint(
     __name__,
     url_prefix="/radiology",
 )
-
 # =========================================================
 # 📥 DOWNLOAD PDF RDV
 # =========================================================
@@ -59,31 +79,35 @@ def download_appointment_pdf(filename):
     )
 
 # =========================================================
-# 📥 DOWNLOAD FICHIERS (BULLETIN + SUPPORTS) ✅ FIX
+# 📥 DOWNLOAD FICHIERS (SÉCURISÉ)
 # =========================================================
+from werkzeug.utils import safe_join
+
 @radiology_bp.route("/file/<path:filename>")
 def download_result_file(filename):
     try:
-        # 🔥 normalisation du chemin (ULTRA IMPORTANT)
+        # 🔥 supprimer "uploads/" si présent
         if filename.startswith("uploads/"):
             filename = filename[len("uploads/"):]
 
-        file_path = os.path.join(
+        # 🔒 sécurisation chemin (ANTI ../)
+        file_path = safe_join(
             current_app.instance_path,
             "uploads",
             filename
         )
 
-        # 🔍 DEBUG (tu peux supprimer après)
-        print("FILE PATH:", file_path)
+        # ❌ sécurité supplémentaire
+        if file_path is None:
+            flash("Accès refusé ❌", "danger")
+            return redirect(url_for("radiology.validator_dashboard"))
 
         # ❌ fichier inexistant
         if not os.path.exists(file_path):
-            print("FICHIER INTROUVABLE:", file_path)
             flash("Fichier introuvable ❌", "danger")
             return redirect(url_for("radiology.validator_dashboard"))
 
-        # ✅ ouvrir fichier
+        # ✅ ouverture fichier
         return send_from_directory(
             os.path.join(current_app.instance_path, "uploads"),
             filename,
@@ -94,7 +118,6 @@ def download_result_file(filename):
         print("ERREUR FICHIER:", filename, e)
         flash("Erreur lors de l'ouverture du fichier ❌", "danger")
         return redirect(url_for("radiology.validator_dashboard"))
-
 # =========================================================
 # 🩻 TYPES RADIOLOGIE
 # =========================================================
@@ -334,8 +357,12 @@ def new_request():
 def success(appointment_id):
     appointment = Appointment.query.get_or_404(appointment_id)
 
-    # 🔥 Génération QR (UTILISE CONFIG BASE_URL automatiquement)
-    qr_path = generate_qr_code(appointment.qr_token)
+    # 🔥 Génération QR PRODUCTION (URL complète)
+    base_url = get_base_url()
+
+    qr_url = f"{base_url}/radiology/rdv/{appointment.qr_token}"
+
+    qr_path = generate_qr_code(qr_url)
 
     # 📄 PDF
     pdf_path = generate_appointment_pdf(appointment, qr_path)
@@ -346,6 +373,7 @@ def success(appointment_id):
         pdf_path=pdf_path,
         qr_path=qr_path,
     )
+
 
 @radiology_bp.route("/secretary/folder/<int:folder_id>", methods=["GET", "POST"])
 @role_required("secretary", "admin")
@@ -512,9 +540,6 @@ def major_dashboard():
         requests_completed=requests_completed,
     )
 
-# =========================================================
-# 👨🏽‍⚕️ ÉTAPE 4 — MAJOR → MULTI RÉSULTATS → PDF → SECRÉTAIRE
-# =========================================================
 @radiology_bp.route("/major/folder/<int:folder_id>", methods=["GET", "POST"])
 @role_required("major", "admin")
 def major_folder_detail(folder_id):
@@ -525,6 +550,9 @@ def major_folder_detail(folder_id):
         try:
             completed_exams = []
 
+            # 🔥 déplacer ici (optimisation)
+            base_url = get_base_url()
+
             for exam in exams:
                 result_text = request.form.get(f"result_text_{exam.id}")
 
@@ -534,7 +562,9 @@ def major_folder_detail(folder_id):
                     exam.completed_at = datetime.utcnow()
 
                     qr_token = uuid.uuid4().hex
-                    qr_path = generate_qr_code(qr_token)
+                    qr_url = f"{base_url}/radiology/verify-result/{qr_token}"
+
+                    qr_path = generate_qr_code(qr_url)
 
                     class _RadioRequestAdapter:
                         pass
@@ -549,14 +579,18 @@ def major_folder_detail(folder_id):
                     adapter.result_qr = qr_token
 
                     pdf_path = generate_radiology_result_pdf(adapter, qr_path)
+
                     exam.result_pdf = pdf_path
                     exam.result_qr = qr_token
+
                     completed_exams.append(exam.exam_type)
+
             if not completed_exams:
                 flash("Veuillez saisir au moins un résultat", "warning")
                 return redirect(
                     url_for("radiology.major_folder_detail", folder_id=folder.id)
                 )
+
             folder.status = "ready_for_delivery"
             folder.assigned_major = session.get("username", "Major")
 
@@ -572,10 +606,7 @@ def major_folder_detail(folder_id):
 
             db.session.commit()
 
-            flash(
-                "Résultats enregistrés et dossier prêt pour remise ✅",
-                "success",
-            )
+            flash("Résultats enregistrés et dossier prêt pour remise ✅", "success")
             return redirect(url_for("radiology.major_dashboard"))
 
         except Exception as e:
@@ -587,7 +618,6 @@ def major_folder_detail(folder_id):
         folder=folder,
         exams=exams,
     )
-
 
 @radiology_bp.route("/major/recommendation/<int:recommendation_id>", methods=["POST"])
 @role_required("major", "admin")
@@ -711,7 +741,7 @@ def secretary_delivery(folder_id):
     )
 
 # =========================================================
-# 🧾 SAISIE RÉSULTAT RADIO + PDF
+# 🧾 SAISIE RÉSULTAT RADIO + PDF (VERSION PRODUCTION)
 # =========================================================
 @radiology_bp.route("/result/<int:request_id>", methods=["GET", "POST"])
 @role_required("major", "admin")
@@ -724,14 +754,23 @@ def radiology_result(request_id):
             radio_request.status = "completed"
             radio_request.completed_at = datetime.utcnow()
 
-            qr_token = uuid.uuid4().hex
-            qr_path = generate_qr_code(qr_token)
+            # 🔥 BASE URL (Render / local)
+            base_url = get_base_url()
 
+            # 🔥 TOKEN + URL COMPLETE
+            qr_token = uuid.uuid4().hex
+            qr_url = f"{base_url}/radiology/verify-result/{qr_token}"
+
+            # 🔥 QR = URL (IMPORTANT)
+            qr_path = generate_qr_code(qr_url)
+
+            # 📄 PDF
             pdf_path = generate_radiology_result_pdf(
                 radio_request,
                 qr_path,
             )
 
+            # 💾 SAVE
             radio_request.result_pdf = pdf_path
             radio_request.result_qr = qr_token
 
@@ -750,7 +789,6 @@ def radiology_result(request_id):
         "radiology/result_form.html",
         radio_request=radio_request,
     )
-
 
 # =========================================================
 # 👁️ AFFICHER RÉSULTAT
@@ -783,7 +821,7 @@ def download_result_pdf(request_id):
 
 
 # =========================================================
-# 📱 VERIFY RESULT QR
+# 📱 VERIFY RESULT QR (CORRECT)
 # =========================================================
 @radiology_bp.route("/verify-result/<token>")
 def verify_result(token):
@@ -804,6 +842,13 @@ def verify_result(token):
         radio_request=radio_request,
     )
 # =========================================================
+# 🔄 REDIRECTION ANCIENS QR (COMPATIBILITÉ)
+# =========================================================
+@radiology_bp.route("/verify/<token>")
+def legacy_verify_redirect(token):
+    return redirect(url_for("radiology.verify_result", token=token))
+
+# =========================================================
 # 📱 RDV DIRECT VIA QR (NOUVEAU 🔥)
 # =========================================================
 @radiology_bp.route("/rdv/<token>")
@@ -815,9 +860,8 @@ def rdv_from_qr(token):
         return redirect(url_for("radiology.index"))
 
     return render_template(
-        "radiology/new_request.html",
-        radiology_types=RADIOLOGY_TYPES,
-        appointment=appointment  # 🔥 IMPORTANT
+        "radiology/rdv_confirm.html",  # 🔥 page dédiée
+        appointment=appointment
     )
 
 # =========================================================
@@ -1150,19 +1194,6 @@ def archives_dashboard():
         archive_date=archive_date,
     )
 
-# =========================================================
-# 📱 VERIFY RDV
-# =========================================================
-@radiology_bp.route("/verify/<token>")
-@role_required("secretary", "validator", "major", "admin")
-def verify_qr(token):
-    appointment = Appointment.query.filter_by(qr_token=token).first_or_404()
-
-    return render_template(
-        "radiology/verify.html",
-        appointment=appointment,
-    )
-
 
 # =========================================================
 # ✅ CHECK-IN
@@ -1193,14 +1224,17 @@ def complete_exam(appointment_id):
 # =========================================================
 # 🖨️ QR PUBLIC À IMPRIMER (CORRECT)
 # =========================================================
+
 @radiology_bp.route("/qr-print")
 def qr_print():
-    base_url = current_app.config.get("BASE_URL", "http://192.168.1.2:5000")
-    base_url = base_url.rstrip("/")
+    # 🌍 URL production (automatique via config)
+    base_url = get_base_url()
 
+    # 🔥 lien réel vers formulaire RDV
     url = f"{base_url}/radiology/new"
 
-    qr_path = generate_qr_code("public_rdv")
+    # 🔥 QR contient le lien direct (IMPORTANT)
+    qr_path = generate_qr_code(url)
 
     return render_template(
         "radiology/qr_print.html",
