@@ -28,26 +28,28 @@ def create_app():
         EmergencyRequest,
     )
 
-    # 🔥 CRÉATION AUTOMATIQUE DES TABLES (FIX ERREUR RENDER)
-    with app.app_context():
-        db.create_all()
-
-        # 🔐 Création admin automatique (si n'existe pas)
-        from app.models.radiology_models import User
-
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", role="admin")
-            admin.set_password("1234")
-            db.session.add(admin)
-            db.session.commit()
-            print("✅ Admin créé automatiquement")
-
     # 📡 IMPORT + ENREGISTREMENT BLUEPRINTS
     from app.routes.radiology_routes import radiology_bp
     from app.routes.auth_routes import auth_bp
 
     app.register_blueprint(radiology_bp)
     app.register_blueprint(auth_bp)
+
+    # 🔥 INITIALISATION DB + USERS (APRÈS IMPORTS → IMPORTANT)
+    with app.app_context():
+        db.create_all()
+
+        try:
+            from create_admin import create_users
+
+            # ⚠️ protection anti boucle
+            if not getattr(app, "_users_initialized", False):
+                create_users()
+                app._users_initialized = True
+                print("✅ Utilisateurs initialisés")
+
+        except Exception as e:
+            print("⚠️ Erreur création utilisateurs :", e)
 
     # 🚫 Désactiver cache navigateur
     @app.after_request

@@ -1,12 +1,8 @@
-from app import create_app, db
+from app import db
 from app.models.radiology_models import User
 
-app = create_app()
 
-with app.app_context():
-    # 🔥 CRÉE LES TABLES SI ELLES N'EXISTENT PAS
-    db.create_all()
-
+def create_users():
     users = [
         ("admin", "admin"),
         ("major", "major"),
